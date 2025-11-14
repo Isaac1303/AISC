@@ -4,6 +4,9 @@ import {
   Link as LinkIcon, Star, ArrowRight
 } from "lucide-react";
 
+const API_BASE =
+  (import.meta && import.meta.env && import.meta.env.VITE_API_URL) ||
+  "http://localhost:8000"; // fallback for local dev
 
 // Single-file, production-ready landing page for "HuskyConnect - Smart Matching Platform for UW Students"
 // Tech: React + TailwindCSS + lucide-react icons (no extra UI kit required)
@@ -40,23 +43,41 @@ function RecommendationsPreview() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function fetchRecs(id) {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch(`http://localhost:8000/recommendations/${id}?limit=5`);
-      if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(msg || `HTTP ${res.status}`);
-      }
-      const data = await res.json();
-      setResults(data.results || []);
-    } catch (e) {
-      setError(e.message || "Failed to load recommendations");
-    } finally {
-      setLoading(false);
-    }
+  // TEST
+async function fetchRecs(id) {
+  setLoading(true);
+  setError("");
+  try {
+    const base = API_BASE.replace(/\/$/, ""); // trim trailing slash
+    const res = await fetch(`${base}/recommendations/${id}?limit=5`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    setResults(data.results || []);
+  } catch (e) {
+    setError(e.message || "Failed to load recommendations");
+  } finally {
+    setLoading(false);
   }
+}
+
+
+  // async function fetchRecs(id) {
+  //   setLoading(true);
+  //   setError("");
+  //   try {
+  //     const res = await fetch(`http://localhost:8000/recommendations/${id}?limit=5`);
+  //     if (!res.ok) {
+  //       const msg = await res.text();
+  //       throw new Error(msg || `HTTP ${res.status}`);
+  //     }
+  //     const data = await res.json();
+  //     setResults(data.results || []);
+  //   } catch (e) {
+  //     setError(e.message || "Failed to load recommendations");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
 
   return (
     <section className="py-16 bg-white">
